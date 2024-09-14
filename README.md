@@ -20,3 +20,7 @@ The Fixitfy Channel System is a script designed for RedM to optimize player expe
 ## Configuration
 
 All settings are configured in the `config.lua` file. You can specify the different areas on the map where channel switching should take place and which channels the players allowed in each area should be moved to before switching.
+
+## Dependency
+
+- [PolyZone](https://github.com/kurdt94/PolyZone)
