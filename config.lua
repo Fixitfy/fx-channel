@@ -141,6 +141,12 @@ Config.ChannelZones = {
     -- },
 }
 
+if Config.Framework == "VORP" then
+    --
+elseif Config.Framework == "RSG" then
+    RSGCore = exports['rsg-core']:GetCoreObject()
+end
+
 local isServer = IsDuplicityVersion()
 
 function Notify(data)
