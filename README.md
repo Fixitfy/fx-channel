@@ -1,4 +1,9 @@
 
+<p align="center">
+  <img src="https://upload.fixitfy.com.tr/images/FIXITFY-YdjrzeXFcV.png" width="700"/>
+  <img src="https://upload.fixitfy.com.tr/images/FIXITFY-YdjrzeXFcV.png" width="700"/>
+</p>
+
 # FX-ChannelSystem
 
 > **RedM PolyZone Routing Bucket Controller**  
@@ -124,7 +129,7 @@ Optimized for heavy-roleplay and AI-dense RedM servers.
 ## 💬 Feedback
 
 Found a bug or need a new feature?  
-Open an issue or contact us via [Discord](https://discord.gg/qUXfgNk3rn).
+Open an issue or contact us via [Discord](https://discord.gg/your-link).
 
 ---
 
