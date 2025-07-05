@@ -1,4 +1,5 @@
-local zoneid = 0
+
+local zoneStack = {}
 local currentBucket = 0
 local Locations = {}
 
@@ -26,7 +27,6 @@ local function GetAllRelatedEntities(ped)
     local vehicleNetId = getSafeNetId(vehicle)
     if vehicleNetId then
         table.insert(entities, vehicleNetId)
-
         for seat = -1, 5 do
             local wagonPed = GetPedInVehicleSeat(vehicle, seat)
             local wagonNetId = getSafeNetId(wagonPed)
@@ -83,12 +83,11 @@ CreateThread(function()
 
         Locations[k]:onPointInOut(PolyZone.getPlayerPosition, function(isPointInside, point)
             local playerPed = PlayerPedId()
+            local bucketId = Config.ChannelZones[k].channelId
+            local relatedEntities = GetAllRelatedEntities(playerPed)
 
             if isPointInside then
-                zoneid = k
-                local bucketId = Config.ChannelZones[k].channelId
-                local relatedEntities = GetAllRelatedEntities(playerPed)
-
+                table.insert(zoneStack, currentBucket)
                 TriggerServerEvent('fx-channel:changeBucket', bucketId, relatedEntities, currentBucket)
                 currentBucket = bucketId
 
@@ -99,15 +98,13 @@ CreateThread(function()
                         type = "success"
                     })
                 end
-            elseif zoneid == k then
-                zoneid = nil
-                local relatedEntities = GetAllRelatedEntities(playerPed)
-
-                TriggerServerEvent('fx-channel:resetBucket', relatedEntities)
+            elseif zoneStack[#zoneStack] and currentBucket == bucketId then
+                currentBucket = table.remove(zoneStack)
+                TriggerServerEvent('fx-channel:changeBucket', currentBucket, relatedEntities, bucketId)
 
                 if Config.ChannelNotify then
                     Notify({
-                        text = Locale('default_channel'),
+                        text = Locale('change_channel', { bucketId = currentBucket }),
                         time = 4000,
                         type = "success"
                     })
@@ -116,8 +113,6 @@ CreateThread(function()
         end)
     end
 end)
-
-
 
 RegisterNetEvent('fx-channel:updateBucket', function(bucketId)
     currentBucket = bucketId

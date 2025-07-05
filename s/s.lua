@@ -1,11 +1,15 @@
-local playerPreviousBuckets = {}
+
+local playerBucketStack = {}
 
 RegisterNetEvent('fx-channel:changeBucket', function(bucketId, entityList, previousBucket)
     local src = source
-    playerPreviousBuckets[src] = previousBucket or 0
+
+    if not playerBucketStack[src] then
+        playerBucketStack[src] = {}
+    end
+    table.insert(playerBucketStack[src], bucketId)
 
     SetPlayerRoutingBucket(src, tonumber(bucketId))
-    currentBucket = bucketId
 
     if type(entityList) == "table" then
         for _, netId in pairs(entityList) do
@@ -21,10 +25,16 @@ end)
 
 RegisterNetEvent('fx-channel:resetBucket', function(entityList)
     local src = source
-    local restoreBucket = playerPreviousBuckets[src] or 0
+
+    if not playerBucketStack[src] or #playerBucketStack[src] == 0 then
+        return
+    end
+
+    table.remove(playerBucketStack[src])
+
+    local restoreBucket = playerBucketStack[src][#playerBucketStack[src]] or 0
 
     SetPlayerRoutingBucket(src, tonumber(restoreBucket))
-    currentBucket = restoreBucket
 
     if type(entityList) == "table" then
         for _, netId in pairs(entityList) do
@@ -36,9 +46,12 @@ RegisterNetEvent('fx-channel:resetBucket', function(entityList)
     end
 
     TriggerClientEvent('fx-channel:updateBucket', src, restoreBucket)
-    playerPreviousBuckets[src] = nil
+
+    if #playerBucketStack[src] == 0 then
+        playerBucketStack[src] = nil
+    end
 end)
 
 RegisterNetEvent('fx-channel:updateBucket', function(bucketId)
-    currentBucket = bucketId
+    -- Client update, no server-side tracking needed anymore
 end)
