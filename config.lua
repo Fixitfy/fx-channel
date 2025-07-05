@@ -10,17 +10,17 @@ Config.Locale = {
 }
 
 
-Config.ChannelNotify = true
+Config.ChannelNotify = false
 Config.ChannelZones = { 
     [1] = {
         channelId = 1,
         ---- ZONE -----
-        name =  "Blackwater Sheriff",
+        name =  "Blackwater Photographer",
         zones = {
-            vector2(-756.5012, -1280.4236),
-            vector2(-756.5743, -1261.2527),
-            vector2(-769.0260, -1260.5226),
-            vector2(-769.2991, -1281.0198),
+            vector2(-809.3248, -1376.7449),
+            vector2(-818.4514, -1377.4347),
+            vector2(-818.3472, -1371.2006),
+            vector2(-810.0699, -1371.5941),
         },
         minz = 40.0,
         maxz = 50.0,
@@ -29,51 +29,6 @@ Config.ChannelZones = {
     },
     [2] = {
         channelId = 2,
-        ---- ZONE -----
-        name =  "Blackwater Clothe Store",
-        zones = {
-            vector2(-756.5698, -1296.1128),
-            vector2(-756.6893, -1288.9473),
-            vector2(-768.1635, -1290.4791),
-            vector2(-767.8209, -1295.6562),
-        },
-        minz = 40.0,
-        maxz = 50.0,
-        debugGrid = false,
-        gridDivisions = 20,
-    },
-    [3] = {
-        channelId = 3,
-        ---- ZONE -----
-        name =  "Blackwater Photographer",
-        zones = {
-            vector2(-808.5270, -1377.5770),
-            vector2(-808.5060, -1370.5947),
-            vector2(-819.4139, -1378.0740),
-            vector2(-819.4861, -1370.9513),
-        },
-        minz = 40.0,
-        maxz = 50.0,
-        debugGrid = false,
-        gridDivisions = 20,
-    },
-    [4] = {
-        channelId = 4,
-        ---- ZONE -----
-        name =  "Blackwater Stable",
-        zones = {
-            vector2(-856.0084, -1372.3643),
-            vector2(-856.0765, -1359.9563),
-            vector2(-880.2509, -1359.3383),
-            vector2(-880.7230, -1373.0320),
-        },
-        minz = 40.0,
-        maxz = 50.0,
-        debugGrid = false,
-        gridDivisions = 20,
-    },
-    [5] = {
-        channelId = 5,
         ---- ZONE -----
         name =  "Blackwater Justice",
         zones = {
@@ -91,54 +46,149 @@ Config.ChannelZones = {
         debugGrid = false,
         gridDivisions = 20,
     },
-    [6] = {
-        channelId = 6,
+    --saint denis
+    [3] = {
+        channelId = 3,
         ---- ZONE -----
-        name =  "Blackwater Doctor",
+        name =  "Saint Klamotten",
         zones = {
-            vector2(-791.6226, -1308.0348),
-            vector2(-791.5994, -1301.2299),
-            vector2(-779.8613, -1301.1510),
-            vector2(-779.7189, -1308.2266),
+            vector2(2547.2205, -1173.3087),
+            vector2(2559.1748, -1173.5138),
+            vector2(2559.8992, -1155.4806),
+            vector2(2547.1602, -1155.2102),
 
         },
         minz = 40.0,
-        maxz = 48.0,
+        maxz = 60.0,
+        debugGrid = false,
+        gridDivisions = 20,
+    },    
+    [4] = {
+        channelId = 4,
+        ---- ZONE -----
+        name =  "Saint Kirche",
+        zones = {
+            vector2(2735.4082, -1272.9368),
+            vector2(2748.0164, -1256.0757),
+            vector2(2768.8064, -1271.3762),
+            vector2(2756.0134, -1285.7622),
+
+        },
+        minz = 40.0,
+        maxz = 60.0,
+        debugGrid = false,
+        gridDivisions = 20,
+    },
+    [5] = {
+        channelId = 5,
+        ---- ZONE -----
+        name =  "Saint Theater",
+        zones = {
+            vector2(2533.1011, -1275.1228),
+            vector2(2532.9636, -1315.3376),
+            vector2(2564.2563, -1314.9877),
+            vector2(2562.1323, -1274.3236),
+
+        },
+        minz = 40.0,
+        maxz = 60.0,
+        debugGrid = false,
+        gridDivisions = 20,
+    },
+    [6] = {
+        channelId = 6,
+        ---- ZONE -----
+        name =  "Saint Pub",
+        zones = {
+            vector2(2802.0444, -1178.3547),
+            vector2(2781.4614, -1166.8154),
+            vector2(2786.6855, -1157.7345),
+            vector2(2793.6902, -1162.3320),
+            vector2(2796.5002, -1159.7537),
+            vector2(2806.7205, -1165.9081),
+
+        },
+        minz = 40.0,
+        maxz = 60.0,
         debugGrid = false,
         gridDivisions = 20,
     },
     [7] = {
         channelId = 7,
         ---- ZONE -----
-        name =  "Blackwater Gun Store",
+        name =  "Saint Tabak",
         zones = {
-            vector2(-778.9694, -1300.7947),
-            vector2(-778.9902, -1292.6661),
-            vector2(-791.8029, -1292.8876),
-            vector2(-791.7681, -1300.6725),
+            vector2(2677.3369, -1397.4232),
+            vector2(2661.9497, -1379.7019),
+            vector2(2648.6301, -1391.0032),
+            vector2(2653.4045, -1404.6588),
+            vector2(2650.3599, -1406.4303),
+            vector2(2653.5032, -1411.7881),
+            vector2(2677.0103, -1400.0635),
 
         },
         minz = 40.0,
-        maxz = 48.0,
+        maxz = 62.0,
         debugGrid = false,
         gridDivisions = 20,
     },
-    -- [8] = {
-    --     channelId = 8,
-    --     ---- ZONE -----
-    --     name =  "Blackwater Saloon",
-    --     zones = {
-    --         vector2(-807.6569, -1327.3511),
-    --         vector2(-808.5427, -1311.1704),
-    --         vector2(-827.3933, -1311.8400),
-    --         vector2(-826.4937, -1328.0920),
+    [8] = {
+        channelId = 8,
+        ---- ZONE -----
+        name =  "Half Map",
+        zones = {
+            vector2(-313.4684, -2371.4988),
+            vector2(-605.2681, -717.5277),
+            vector2(-785.6693, -366.9247),
+            vector2(-449.2942, -114.9248),
+            vector2(-397.3019, 85.3356),
+            vector2(-515.8019, 197.4606),
+            vector2(-771.8619, 96.3907),
+            vector2(-819.8620, 20.2657),
+            vector2(-992.0204, -75.4048),
+            vector2(-1179.8958, 27.7202),
+            vector2(-1173.5209, 272.9702),
+            vector2(-932.0209, 559.8452),
+            vector2(-745.6750, 584.0767),
+            vector2(-727.3000, 692.0767),
+            vector2(-687.5500, 712.3268),
+            vector2(-621.1754, 905.8268),
+            vector2(-531.1755, 912.5769),
+            vector2(-475.6756, 1056.9521),
+            vector2(-398.4255, 1084.7023),
+            vector2(-286.6755, 1168.3273),
+            vector2(-246.5506, 1403.8274),
+            vector2(-87.5506, 1434.9526),
+            vector2(-33.9256, 1549.7028),
+            vector2(277.3244, 1533.2029),
+            vector2(431.4494, 1688.4529),
+            vector2(535.3322, 1796.9711),
+            vector2(895.2491, 3331.9241),
+            vector2(5030.0000, 3226.0000),
+            vector2(4472.0005, -3746.0007),
+            vector2(-492.9998, -3871.0005),
 
-    --     },
-    --     minz = 42.0,
-    --     maxz = 50.0,
-    --     debugGrid = false,
-    --     gridDivisions = 20,
-    -- },
+        },
+        minz = 1.0,
+        maxz = 750.0,
+        debugGrid = false,
+        gridDivisions = 20,
+    },
+    [9] = {
+        channelId = 9,
+        ---- ZONE -----
+        name =  "Blackwater Stable",
+        zones = {
+            vector2(-856.0084, -1372.3643),
+            vector2(-856.0765, -1359.9563),
+            vector2(-880.2509, -1359.3383),
+            vector2(-880.7230, -1373.0320),
+        },
+        minz = 40.0,
+        maxz = 50.0,
+        debugGrid = false,
+        gridDivisions = 20,
+    },
 }
 
 if Config.Framework == "VORP" then
