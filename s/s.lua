@@ -1,42 +1,41 @@
-local playerPreviousBuckets = {} 
+local playerPreviousBuckets = {}
 
-RegisterNetEvent('fx-channel:changeBucket', function(bucketId, entityId, previousBucket)
+RegisterNetEvent('fx-channel:changeBucket', function(bucketId, entityList, previousBucket)
     local src = source
     playerPreviousBuckets[src] = previousBucket or 0
 
     SetPlayerRoutingBucket(src, tonumber(bucketId))
     currentBucket = bucketId
 
-    local entity = nil
-    if entityId and DoesEntityExist(NetworkGetEntityFromNetworkId(entityId)) then
-        entity = NetworkGetEntityFromNetworkId(entityId)
-    end
-
-    if entity and DoesEntityExist(entity) then
-        SetEntityRoutingBucket(entity, tonumber(bucketId))
+    if type(entityList) == "table" then
+        for _, netId in pairs(entityList) do
+            local entity = NetworkGetEntityFromNetworkId(netId)
+            if entity and DoesEntityExist(entity) then
+                SetEntityRoutingBucket(entity, tonumber(bucketId))
+            end
+        end
     end
 
     TriggerClientEvent('fx-channel:updateBucket', src, bucketId)
 end)
 
-RegisterNetEvent('fx-channel:resetBucket', function(entityId)
+RegisterNetEvent('fx-channel:resetBucket', function(entityList)
     local src = source
     local restoreBucket = playerPreviousBuckets[src] or 0
 
     SetPlayerRoutingBucket(src, tonumber(restoreBucket))
     currentBucket = restoreBucket
 
-    local entity = nil
-    if entityId and DoesEntityExist(NetworkGetEntityFromNetworkId(entityId)) then
-        entity = NetworkGetEntityFromNetworkId(entityId)
-    end
-
-    if entity and DoesEntityExist(entity) then
-        SetEntityRoutingBucket(entity, tonumber(restoreBucket))
+    if type(entityList) == "table" then
+        for _, netId in pairs(entityList) do
+            local entity = NetworkGetEntityFromNetworkId(netId)
+            if entity and DoesEntityExist(entity) then
+                SetEntityRoutingBucket(entity, tonumber(restoreBucket))
+            end
+        end
     end
 
     TriggerClientEvent('fx-channel:updateBucket', src, restoreBucket)
-
     playerPreviousBuckets[src] = nil
 end)
 

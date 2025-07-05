@@ -10,7 +10,7 @@ Config.Locale = {
 }
 
 
-Config.ChannelNotify = false
+Config.ChannelNotify = true
 Config.ChannelZones = { 
     [1] = {
         channelId = 1,

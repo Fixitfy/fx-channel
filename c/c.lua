@@ -2,44 +2,69 @@ local zoneid = 0
 local currentBucket = 0
 local Locations = {}
 
-local function GetGroupAnimalPeds(ped)
-    local groupId = GetPedGroupIndex(ped)
-    local groupMembers = {}
-
-    for i = 0, 7 do
-        local member = GetPedAsGroupMember(groupId, i)
-        if DoesEntityExist(member) and not IsPedAPlayer(member) and not IsPedHuman(member) then
-            table.insert(groupMembers, member)
-        end
-    end
-
-    return groupMembers
-end
-
 local function GetAllRelatedEntities(ped)
     local entities = {}
 
-    local mount = GetMount(ped)
-    if mount ~= 0 and NetworkGetNetworkIdFromEntity(mount) ~= 0 then
-        table.insert(entities, NetworkGetNetworkIdFromEntity(mount))
+    local function getSafeNetId(entity)
+        if DoesEntityExist(entity) and NetworkGetEntityIsNetworked(entity) then
+            local netId = NetworkGetNetworkIdFromEntity(entity)
+            if netId and netId ~= 0 then
+                return netId
+            end
+        end
+        return nil
     end
+
+    local playerNetId = getSafeNetId(ped)
+    if playerNetId then table.insert(entities, playerNetId) end
+
+    local mount = GetMount(ped)
+    local mountNetId = getSafeNetId(mount)
+    if mountNetId then table.insert(entities, mountNetId) end
 
     local vehicle = GetVehiclePedIsIn(ped, false)
-    if vehicle ~= 0 and NetworkGetNetworkIdFromEntity(vehicle) ~= 0 then
-        table.insert(entities, NetworkGetNetworkIdFromEntity(vehicle))
-    end
+    local vehicleNetId = getSafeNetId(vehicle)
+    if vehicleNetId then
+        table.insert(entities, vehicleNetId)
 
-    if IsPedLeadingHorse(ped) then
-        local ledHorse = GetLastLedMount(ped)
-        if ledHorse ~= 0 and NetworkGetNetworkIdFromEntity(ledHorse) ~= 0 then
-            table.insert(entities, NetworkGetNetworkIdFromEntity(ledHorse))
+        for seat = -1, 5 do
+            local wagonPed = GetPedInVehicleSeat(vehicle, seat)
+            local wagonNetId = getSafeNetId(wagonPed)
+            if wagonNetId then
+                table.insert(entities, wagonNetId)
+            end
         end
     end
 
-    local groupAnimals = GetGroupAnimalPeds(ped)
-    for _, animal in ipairs(groupAnimals) do
-        if NetworkGetNetworkIdFromEntity(animal) ~= 0 then
-            table.insert(entities, NetworkGetNetworkIdFromEntity(animal))
+    if IsPedLeadingHorse(ped) then
+        local ledMount = GetLastLedMount(ped)
+        local ledNetId = getSafeNetId(ledMount)
+        if ledNetId then table.insert(entities, ledNetId) end
+    end
+
+    local groupIndex = GetPedGroupIndex(ped)
+    for i = 0, 7 do
+        local member = GetPedAsGroupMember(groupIndex, i)
+        if DoesEntityExist(member) and not IsPedAPlayer(member) then
+            local memberNetId = getSafeNetId(member)
+            if memberNetId then
+                table.insert(entities, memberNetId)
+            end
+        end
+    end
+
+    local playerCoords = GetEntityCoords(ped)
+    local allPeds = GetGamePool("CPed")
+    for _, otherPed in ipairs(allPeds) do
+        if DoesEntityExist(otherPed)
+            and not IsPedAPlayer(otherPed)
+            and NetworkGetEntityIsNetworked(otherPed)
+            and Vdist(GetEntityCoords(otherPed), playerCoords) < 200.0
+        then
+            local npcNetId = NetworkGetNetworkIdFromEntity(otherPed)
+            if npcNetId and npcNetId ~= 0 then
+                table.insert(entities, npcNetId)
+            end
         end
     end
 
@@ -47,40 +72,38 @@ local function GetAllRelatedEntities(ped)
 end
 
 CreateThread(function()
-    for k=1, #Config.ChannelZones do
+    for k = 1, #Config.ChannelZones do
         Locations[k] = PolyZone:Create(Config.ChannelZones[k].zones, {
-            name = "SearchLocation"..k,
+            name = "SearchLocation" .. k,
             minZ = Config.ChannelZones[k].minz,
             maxZ = Config.ChannelZones[k].maxz,
             debugGrid = Config.ChannelZones[k].debugGrid,
             gridDivisions = Config.ChannelZones[k].gridDivisions,
         })
+
         Locations[k]:onPointInOut(PolyZone.getPlayerPosition, function(isPointInside, point)
             local playerPed = PlayerPedId()
+
             if isPointInside then
                 zoneid = k
                 local bucketId = Config.ChannelZones[k].channelId
-                local relatedEntities = GetAllRelatedEntities(playerPed) -- NEW
+                local relatedEntities = GetAllRelatedEntities(playerPed)
 
-                for _, netId in ipairs(relatedEntities) do
-                    TriggerServerEvent('fx-channel:changeBucket', bucketId, netId, currentBucket)
-                end
-
+                TriggerServerEvent('fx-channel:changeBucket', bucketId, relatedEntities, currentBucket)
                 currentBucket = bucketId
+
                 if Config.ChannelNotify then
                     Notify({
-                        text = Locale('change_channel', {bucketId = bucketId}),
+                        text = Locale('change_channel', { bucketId = bucketId }),
                         time = 4000,
                         type = "success"
                     })
                 end
             elseif zoneid == k then
                 zoneid = nil
-                local relatedEntities = GetAllRelatedEntities(playerPed) -- NEW
+                local relatedEntities = GetAllRelatedEntities(playerPed)
 
-                for _, netId in ipairs(relatedEntities) do
-                    TriggerServerEvent('fx-channel:resetBucket', netId)
-                end
+                TriggerServerEvent('fx-channel:resetBucket', relatedEntities)
 
                 if Config.ChannelNotify then
                     Notify({
@@ -95,7 +118,7 @@ CreateThread(function()
 end)
 
 
+
 RegisterNetEvent('fx-channel:updateBucket', function(bucketId)
     currentBucket = bucketId
-    -- print("Client: Updated currentBucket to ", bucketId)
 end)
