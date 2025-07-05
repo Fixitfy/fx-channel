@@ -1,26 +1,134 @@
-# Fixitfy Channel System
 
-The Fixitfy Channel System is a script designed for RedM to optimize player experience in crowded areas by automatically managing player channels. When the player count exceeds a certain threshold within a specified area, the script seamlessly transfers players to different channels, helping to minimize server lag and performance issues.
+# FX-ChannelSystem
 
-## Features
+> **RedM PolyZone Routing Bucket Controller**  
+> Optimize player & entity separation to minimize OneSync conflicts.
 
-- **Automatic Channel Switching**: Players are automatically moved to different channels when they enter areas with high player density, ensuring smoother gameplay and reduced lag.
-- **Configurable Areas**: Define specific areas in the `config.lua` file where channel switching should occur. You can set different thresholds and channels for each area.
-- **Optimized Performance**: By distributing players across multiple channels, this system reduces the strain on any single channel, allowing for higher player counts with minimal issues.
-- **Seamless Integration**: The script operates in the background without interrupting gameplay, providing a smooth transition between channels.
-- **Customizable**: Easily configure areas, thresholds, and other parameters through the `config.lua` file to fit your server's needs.
+---
 
-## Installation
+## 📌 Overview
 
-1. **Download and Extract**: Download the script files and extract them into your `resources` folder.
-2. **Configure**: Open the `config.lua` file and set up the areas, channels, and thresholds according to your server's needs.
-3. **Start the Resource**: Add `ensure fx-channel` to your `server.cfg` file to ensure the resource starts with your server.
-4. **Enjoy**: The system will automatically manage player channels, optimizing performance in crowded areas.
+The `FX-ChannelSystem` is a **dynamic routing bucket manager** for RedM that uses **PolyZone-defined zones** to assign players and all their related entities (mounts, vehicles, animals, NPCs, etc.) into separate network buckets. This helps isolate local interactions and **reduces OneSync entity visibility and collision bugs** in dense or interactive areas.
 
-## Configuration
+---
 
-All settings are configured in the `config.lua` file. You can specify the different areas on the map where channel switching should take place and which channels the players allowed in each area should be moved to before switching.
+## 🎯 Purpose
 
-## Dependency
+In OneSync environments on RedM, multiple players interacting with shared entities (mounts, NPCs, wagons, AI companions, etc.) can cause:
+- **Mount/vehicle desync**
+- **Invisible or bugged NPCs**
+- **Cross-player AI interference**
+- **Excessive server bandwidth usage due to global replication**
 
-- [PolyZone](https://github.com/kurdt94/PolyZone)
+This script resolves that by dynamically splitting players into **routing buckets**, ensuring isolated environments where needed — particularly useful in:
+- Cinematic scenes
+- Stables
+- Job zones (e.g., bounty, delivery, crafting)
+- Instanced interiors
+- Roleplay scenarios with AI followers
+
+---
+
+## 🧠 Features
+
+✅ Player enters zone → automatically moved to a dedicated bucket  
+✅ Also routes all related entities:
+- 👤 Player ped
+- 🐎 Mounted horse
+- 🐴 Lead horse
+- 🚙 Vehicle / Wagon
+- 🐾 Ped group followers (AI animals)
+- 🤖 Nearby networked NPCs
+
+✅ Player leaves zone → returns to original default bucket  
+✅ Highly optimized to avoid:
+- RedM `[entity] no net object` warnings  
+- Excessive entity lookups  
+- Non-networked or ambient peds being mistakenly moved
+
+---
+
+## 🛠️ How It Works
+
+1. Zones are defined in `Config.ChannelZones`.
+2. When a player enters a zone:
+   - The script gathers **all related and nearby networked entities**.
+   - Calls `SetPlayerRoutingBucket()` and `SetEntityRoutingBucket()` for each one.
+3. When leaving:
+   - All affected entities are reset to their original bucket.
+
+---
+
+## ⚙️ Configuration Notes
+
+- Each `zone` entry in `Config.ChannelZones` must have a **unique `channelId`**.
+- All `zoneId` indices (table keys) must also be unique.
+- If two zones share the same `channelId`, players and entities may unintentionally share environments.
+- Make sure to avoid `channelId = 0` as it is considered the default/global bucket.
+
+Example:
+```lua
+Config.ChannelZones = {
+    [1] = {
+        channelId = 1,
+        name = "Blackwater Photographer",
+        ...
+    },
+    [2] = {
+        channelId = 2,
+        name = "Blackwater Justice",
+        ...
+    }
+}
+```
+
+---
+
+## 🔒 OneSync Safety
+
+This script prevents the most common OneSync routing issues by:
+- Avoiding use of non-networked entities in `SetEntityRoutingBucket`
+- Skipping ambient world peds (wildlife, civilian AI)
+- Including `NetworkHasControlOfEntity` logic where necessary
+- Using `NetworkGetNetworkIdFromEntity()` **only after verifying entity is networked**
+
+---
+
+## 📦 Installation
+
+1. Place the script folder in your RedM resource directory.
+2. Add to your `server.cfg`:
+
+```
+ensure fx-channelsystem
+```
+
+3. Configure zones inside `config.lua` as described above.
+
+---
+
+## 🧪 Requirements
+
+- RedM Server with OneSync enabled  
+- [PolyZone](https://github.com/mkafrin/PolyZone) (required dependency)
+
+---
+
+## 📣 Credits
+
+Developed by **Fixitfy Development**  
+Optimized for heavy-roleplay and AI-dense RedM servers.
+
+---
+
+## 💬 Feedback
+
+Found a bug or need a new feature?  
+Open an issue or contact us via [Discord](https://discord.gg/qUXfgNk3rn).
+
+---
+
+## 🧰 License
+
+MIT License — Free to use, modify, and distribute.  
+Attribution appreciated but not required.
