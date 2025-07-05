@@ -1,7 +1,7 @@
 
 <p align="center">
   <img src="https://upload.fixitfy.com.tr/images/FIXITFY-YdjrzeXFcV.png" width="700"/>
-  <img src="https://upload.fixitfy.com.tr/images/FIXITFY-YdjrzeXFcV.png" width="700"/>
+  <img src="https://upload.fixitfy.com.tr/images/FIXITFY-ZOQStUmpBp.png" width="700"/>
 </p>
 
 # FX-ChannelSystem
