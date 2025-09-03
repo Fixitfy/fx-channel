@@ -5,71 +5,43 @@ local Locations = {}
 
 local function GetAllRelatedEntities(ped)
     local entities = {}
+    local ledNetId = nil
 
-    local function getSafeNetId(entity)
-        if DoesEntityExist(entity) and NetworkGetEntityIsNetworked(entity) then
+    local function addSafeNetId(entity)
+        if entity and entity ~= 0 and DoesEntityExist(entity) and NetworkGetEntityIsNetworked(entity) then
             local netId = NetworkGetNetworkIdFromEntity(entity)
             if netId and netId ~= 0 then
+                entities[#entities+1] = netId
                 return netId
             end
         end
         return nil
     end
 
-    local playerNetId = getSafeNetId(ped)
-    if playerNetId then table.insert(entities, playerNetId) end
+    addSafeNetId(ped)
 
     local mount = GetMount(ped)
-    local mountNetId = getSafeNetId(mount)
-    if mountNetId then table.insert(entities, mountNetId) end
-
-    local vehicle = GetVehiclePedIsIn(ped, false)
-    local vehicleNetId = getSafeNetId(vehicle)
-    if vehicleNetId then
-        table.insert(entities, vehicleNetId)
-        for seat = -1, 5 do
-            local wagonPed = GetPedInVehicleSeat(vehicle, seat)
-            local wagonNetId = getSafeNetId(wagonPed)
-            if wagonNetId then
-                table.insert(entities, wagonNetId)
-            end
-        end
+    if mount and DoesEntityExist(mount) and NetworkGetEntityOwner(mount) == PlayerId() then
+        addSafeNetId(mount)
     end
 
     if IsPedLeadingHorse(ped) then
         local ledMount = GetLastLedMount(ped)
-        local ledNetId = getSafeNetId(ledMount)
-        if ledNetId then table.insert(entities, ledNetId) end
-    end
-
-    local groupIndex = GetPedGroupIndex(ped)
-    for i = 0, 7 do
-        local member = GetPedAsGroupMember(groupIndex, i)
-        if DoesEntityExist(member) and not IsPedAPlayer(member) then
-            local memberNetId = getSafeNetId(member)
-            if memberNetId then
-                table.insert(entities, memberNetId)
-            end
+        if ledMount and DoesEntityExist(ledMount) and NetworkGetEntityOwner(ledMount) == PlayerId() then
+            ledNetId = addSafeNetId(ledMount)
+            TaskStopLeadingHorse(ped) -- Lead'i kes
         end
     end
 
-    local playerCoords = GetEntityCoords(ped)
-    local allPeds = GetGamePool("CPed")
-    for _, otherPed in ipairs(allPeds) do
-        if DoesEntityExist(otherPed)
-            and not IsPedAPlayer(otherPed)
-            and NetworkGetEntityIsNetworked(otherPed)
-            and Vdist(GetEntityCoords(otherPed), playerCoords) < 200.0
-        then
-            local npcNetId = NetworkGetNetworkIdFromEntity(otherPed)
-            if npcNetId and npcNetId ~= 0 then
-                table.insert(entities, npcNetId)
-            end
-        end
+    local vehicle = GetVehiclePedIsIn(ped, false)
+    if vehicle and DoesEntityExist(vehicle) and NetworkGetEntityOwner(vehicle) == PlayerId() then
+        addSafeNetId(vehicle)
     end
 
-    return entities
+    return entities, ledNetId
 end
+
+
 
 CreateThread(function()
     for k = 1, #Config.ChannelZones do
@@ -84,11 +56,15 @@ CreateThread(function()
         Locations[k]:onPointInOut(PolyZone.getPlayerPosition, function(isPointInside, point)
             local playerPed = PlayerPedId()
             local bucketId = Config.ChannelZones[k].channelId
-            local relatedEntities = GetAllRelatedEntities(playerPed)
+            local relatedEntities, ledNetId = GetAllRelatedEntities(playerPed)
+
 
             if isPointInside then
                 table.insert(zoneStack, currentBucket)
-                TriggerServerEvent('fx-channel:changeBucket', bucketId, relatedEntities, currentBucket)
+                -- TriggerEvent("gum_stables:fleeHorseInstant", true)
+                -- TriggerEvent("gum_stables:fleeCartInstant", true)
+                TriggerServerEvent('fx-channel:changeBucket', bucketId, relatedEntities, currentBucket, ledNetId)
+
                 currentBucket = bucketId
 
                 if Config.ChannelNotify then
@@ -100,7 +76,9 @@ CreateThread(function()
                 end
             elseif zoneStack[#zoneStack] and currentBucket == bucketId then
                 currentBucket = table.remove(zoneStack)
-                TriggerServerEvent('fx-channel:changeBucket', currentBucket, relatedEntities, bucketId)
+                -- TriggerEvent("gum_stables:fleeHorseInstant", true)
+                -- TriggerEvent("gum_stables:fleeCartInstant", true)
+                TriggerServerEvent('fx-channel:changeBucket', currentBucket, relatedEntities, bucketId, ledNetId)
 
                 if Config.ChannelNotify then
                     Notify({
@@ -116,4 +94,12 @@ end)
 
 RegisterNetEvent('fx-channel:updateBucket', function(bucketId)
     currentBucket = bucketId
+end)
+
+RegisterNetEvent('fx-channel:relead-led-horse', function(ledNetId)
+    local ped = PlayerPedId()
+    if not ledNetId then return end
+    local horse = NetworkGetEntityFromNetworkId(ledNetId)
+    if not DoesEntityExist(horse) then return end
+    TaskLeadHorse(ped, horse)
 end)
