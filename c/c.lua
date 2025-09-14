@@ -44,32 +44,31 @@ end
 
 
 CreateThread(function()
-    for k = 1, #Config.ChannelZones do
-        Locations[k] = PolyZone:Create(Config.ChannelZones[k].zones, {
+    for k, v in pairs(Config.ChannelZones) do
+        Locations[k] = PolyZone:Create(v.zones, {
             name = "SearchLocation" .. k,
-            minZ = Config.ChannelZones[k].minz,
-            maxZ = Config.ChannelZones[k].maxz,
-            debugGrid = Config.ChannelZones[k].debugGrid,
-            gridDivisions = Config.ChannelZones[k].gridDivisions,
+            minZ = v.minz,
+            maxZ = v.maxz,
+            debugGrid = v.debugGrid,
+            gridDivisions = v.gridDivisions,
         })
 
         Locations[k]:onPointInOut(PolyZone.getPlayerPosition, function(isPointInside, point)
             local playerPed = PlayerPedId()
-            local bucketId = Config.ChannelZones[k].channelId
+            local bucketId = v.channelId
             local relatedEntities, ledNetId = GetAllRelatedEntities(playerPed)
-
 
             if isPointInside then
                 table.insert(zoneStack, currentBucket)
                 -- TriggerEvent("gum_stables:fleeHorseInstant", true)
                 -- TriggerEvent("gum_stables:fleeCartInstant", true)
-                TriggerServerEvent('fx-channel:changeBucket', bucketId, relatedEntities, currentBucket, ledNetId)
+                TriggerServerEvent("fx-channel:changeBucket", bucketId, relatedEntities, currentBucket, ledNetId)
 
                 currentBucket = bucketId
 
                 if Config.ChannelNotify then
                     Notify({
-                        text = Locale('change_channel', { bucketId = bucketId }),
+                        text = Locale("change_channel", { bucketId = bucketId }),
                         time = 4000,
                         type = "success"
                     })
@@ -78,11 +77,11 @@ CreateThread(function()
                 currentBucket = table.remove(zoneStack)
                 -- TriggerEvent("gum_stables:fleeHorseInstant", true)
                 -- TriggerEvent("gum_stables:fleeCartInstant", true)
-                TriggerServerEvent('fx-channel:changeBucket', currentBucket, relatedEntities, bucketId, ledNetId)
+                TriggerServerEvent("fx-channel:changeBucket", currentBucket, relatedEntities, bucketId, ledNetId)
 
                 if Config.ChannelNotify then
                     Notify({
-                        text = Locale('change_channel', { bucketId = currentBucket }),
+                        text = Locale("change_channel", { bucketId = currentBucket }),
                         time = 4000,
                         type = "success"
                     })
@@ -91,6 +90,7 @@ CreateThread(function()
         end)
     end
 end)
+
 
 RegisterNetEvent('fx-channel:updateBucket', function(bucketId)
     currentBucket = bucketId
